@@ -23,9 +23,9 @@ spec:
               print_request_headers = true
               if print_request_headers then
                   function envoy_on_request(request_handle)
-                      request_handle:logCritical("Printing Request Headers => ")
+                      request_handle:logWarn("Printing Request Headers => ")
                       for key, value in pairs(request_handle:headers()) do
-                        request_handle:logCritical(key .. " => " .. value)
+                        request_handle:logWarn(key .. " => " .. value)
                       end
                   end
               end  
