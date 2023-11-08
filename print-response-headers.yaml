@@ -1,0 +1,28 @@
+kind: EnvoyFilter
+apiVersion: networking.istio.io/v1alpha3
+metadata:
+  name: print-response-headers
+spec:
+  configPatches:
+    - applyTo: HTTP_FILTER
+      match:
+        context: SIDECAR_OUTBOUND
+        listener:
+          filterChain:
+            filter:
+              name: envoy.filters.network.http_connection_manager
+              subFilter:
+                name: envoy.filters.http.router
+      patch:
+        operation: INSERT_BEFORE
+        value:
+          name: envoy.lua
+          typed_config:
+            '@type': type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+            inlineCode: >
+                function envoy_on_response(response_handle)
+                    response_handle:logWarn("Printing response Headers => ")
+                    for key, value in pairs(response_handle:headers()) do
+                      response_handle:logWarn(key .. " => " .. value)
+                    end
+                end

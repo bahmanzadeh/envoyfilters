@@ -1,7 +1,7 @@
 kind: EnvoyFilter
 apiVersion: networking.istio.io/v1alpha3
 metadata:
-  name: print-httpheaders
+  name: print-request-headers
 spec:
   configPatches:
     - applyTo: HTTP_FILTER
@@ -20,14 +20,11 @@ spec:
           typed_config:
             '@type': type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
             inlineCode: >
-              print_request_headers = true
-              if print_request_headers then
-                  function envoy_on_request(request_handle)
-                      request_handle:logWarn("Printing Request Headers => ")
-                      for key, value in pairs(request_handle:headers()) do
-                        request_handle:logWarn(key .. " => " .. value)
-                      end
-                  end
-              end  
+                function envoy_on_request(request_handle)
+                    request_handle:logWarn("Printing Request Headers => ")
+                    for key, value in pairs(request_handle:headers()) do
+                      request_handle:logWarn(key .. " => " .. value)
+                    end
+                end
 
  
