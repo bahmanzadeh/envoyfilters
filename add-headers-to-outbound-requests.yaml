@@ -1,12 +1,12 @@
 kind: EnvoyFilter
 apiVersion: networking.istio.io/v1alpha3
 metadata:
-  name: print-request-headers
+  name: add-headers-to-outbound-requests
 spec:
   configPatches:
     - applyTo: HTTP_FILTER
       match:
-        context: SIDECAR_INBOUND
+        context: SIDECAR_OUTBOUND
         listener:
           filterChain:
             filter:
@@ -21,10 +21,10 @@ spec:
             '@type': type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
             inlineCode: >
                 function envoy_on_request(request_handle)
-                    request_handle:logWarn("Printing Request Headers => ")
-                    for key, value in pairs(request_handle:headers()) do
-                      request_handle:logWarn(key .. " => " .. value)
-                    end
+                    request_handle:logWarn("Adding Headers to Outbound Requests")
+                    request_handle:headers():add("route-to-svc1", "v1")
+                    request_handle:logWarn("route-to-svc1: "..request_handle:headers():get("route-to-svc1"))
+                    request_handle:headers():add("route-to-svc2", "v2")
+                    request_handle:logWarn("route-to-svc2: "..request_handle:headers():get("route-to-svc2"))
                 end
-
- 
+                

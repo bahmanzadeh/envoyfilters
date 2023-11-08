@@ -1,12 +1,12 @@
 kind: EnvoyFilter
 apiVersion: networking.istio.io/v1alpha3
 metadata:
-  name: print-response-headers
+  name: print-inbound-headers
 spec:
   configPatches:
     - applyTo: HTTP_FILTER
       match:
-        context: SIDECAR_OUTBOUND
+        context: SIDECAR_INBOUND
         listener:
           filterChain:
             filter:
@@ -20,9 +20,11 @@ spec:
           typed_config:
             '@type': type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
             inlineCode: >
-                function envoy_on_response(response_handle)
-                    response_handle:logWarn("Printing response Headers => ")
-                    for key, value in pairs(response_handle:headers()) do
-                      response_handle:logWarn(key .. " => " .. value)
+                function envoy_on_request(request_handle)
+                    request_handle:logWarn("Printing Inbound Headers => ")
+                    for key, value in pairs(request_handle:headers()) do
+                      request_handle:logWarn(key .. " => " .. value)
                     end
                 end
+
+ 
